@@ -136,19 +136,32 @@ public class ExpressionManipulators {
     
     private static AstNode handleSimplifyHelper(IDictionary<String, AstNode> variables, AstNode node) {
         if (node.isNumber()) {
-            return new AstNode(node.getNumericValue());
+            return node;
         }
-        
         else if (node.isVariable()) {
             if(variables.containsKey(node.getName())) {
-                return new AstNode(toDoubleHelper(variables, node); 
-            }
-            
-            else {
-                
-            }
-            
+                return handleSimplifyHelper(variables, variables.get(node.getName())); 
+            }else {
+                return node;
+            } 
         }
+            else {
+                String name = node.getName();
+                 if(name.equals("+") || name.equals("-") || name.equals("*")) {
+                    node.getChildren().set(0, handleSimplifyHelper(variables, node.getChildren().get(0)));
+                    node.getChildren().set(1, handleSimplifyHelper(variables, node.getChildren().get(1)));
+                    if(node.getChildren().get(0).isNumber() && node.getChildren().get(1).isNumber()) {
+                        return new AstNode(toDoubleHelper(variables, node));
+                    }else {
+                        return node;
+                    }
+                } else {
+                    for (int i = 0; i < node.getChildren().size(); i++) {
+                        node.getChildren().set(i, handleSimplifyHelper(variables, node.getChildren().get(i)));
+                    }
+                    return node;
+                }
+            }     
     }
 
     /**

@@ -228,8 +228,7 @@ public class ExpressionManipulators {
      * @throws EvaluationError  if 'step' is zero or negative
      */
     public static AstNode plot(Environment env, AstNode node) {
-        // TODO: Your code here
-        throw new NotYetImplementedException();
+
 
         // Note: every single function we add MUST return an
         // AST node that your "simplify" function is capable of handling.
@@ -240,6 +239,28 @@ public class ExpressionManipulators {
         //
         // When working on this method, you should uncomment the following line:
         //
-        // return new AstNode(1);
+        double delta = toDoubleHelper(env.getVariables(), node.getChildren().remove()); 
+        double end = toDoubleHelper(env.getVariables(), node.getChildren().remove());
+        double start = toDoubleHelper(env.getVariables(), node.getChildren().remove()); 
+        String variable = node.getChildren().remove().getName();
+        AstNode funct = node.getChildren().remove();
+        if(start >= end) {
+            throw new EvaluationError("");
+        }else if((end - start) < delta || delta <= 0) {
+            throw new EvaluationError("");
+        }
+        IList<Double> xVals = new DoubleLinkedList<Double>();
+        IList<Double> yVals = new DoubleLinkedList<Double>();
+        for(int i = 0; i < ((end - start)/delta) + 1; i++) {
+           double xVal = start + (i * delta);
+           env.getVariables().put(variable, new AstNode(xVal)); 
+           xVals.add(xVal);
+           double yVal = toDoubleHelper(env.getVariables(), nodeClone(funct));
+           yVals.add(yVal);
+        }
+        env.getVariables().remove(variable);
+        env.getImageDrawer().drawScatterPlot("Plot", variable, "output", xVals, yVals);
+        
+         return new AstNode(1);
     }
 }

@@ -5,7 +5,6 @@ import calculator.errors.EvaluationError;
 import datastructures.concrete.DoubleLinkedList;
 import datastructures.interfaces.IDictionary;
 import datastructures.interfaces.IList;
-import misc.exceptions.NotYetImplementedException;
 
 /**
  * All of the static methods in this class are given the exact same parameters for
@@ -38,7 +37,6 @@ public class ExpressionManipulators {
      */
     public static AstNode handleToDouble(Environment env, AstNode node) {
         // To help you get started, we've implemented this method for you.
-        // You should fill in the TODOs in the 'toDoubleHelper' method.
         return new AstNode(toDoubleHelper(env.getVariables(), node.getChildren().get(0)));
     }
 
@@ -50,7 +48,7 @@ public class ExpressionManipulators {
         } 
         
         else if (node.isVariable()) {
-            if(variables.containsKey(node.getName())) {
+            if (variables.containsKey(node.getName())) {
                 AstNode temp = variables.get(node.getName());
                 return toDoubleHelper(variables, temp);
             }
@@ -65,35 +63,40 @@ public class ExpressionManipulators {
             String name = node.getName();
             
             
-            if(name.equals("+")) {
-                return toDoubleHelper(variables, node.getChildren().get(0)) + toDoubleHelper(variables, node.getChildren().get(1));
+            if (name.equals("+")) {
+                return toDoubleHelper(variables, node.getChildren().get(0)) +
+                        toDoubleHelper(variables, node.getChildren().get(1));
             }
             
-            else if(name.equals("-")) {
-                return toDoubleHelper(variables, node.getChildren().get(0)) - toDoubleHelper(variables, node.getChildren().get(1));
+            else if (name.equals("-")) {
+                return toDoubleHelper(variables, node.getChildren().get(0)) -
+                        toDoubleHelper(variables, node.getChildren().get(1));
             }
             
-            else if(name.equals("*")) {
-                return toDoubleHelper(variables, node.getChildren().get(0)) * toDoubleHelper(variables, node.getChildren().get(1));
+            else if (name.equals("*")) {
+                return toDoubleHelper(variables, node.getChildren().get(0)) *
+                        toDoubleHelper(variables, node.getChildren().get(1));
             }
             
-            else if(name.equals("/")) {
-                return toDoubleHelper(variables, node.getChildren().get(0)) / toDoubleHelper(variables, node.getChildren().get(1));
+            else if (name.equals("/")) {
+                return toDoubleHelper(variables, node.getChildren().get(0)) /
+                        toDoubleHelper(variables, node.getChildren().get(1));
             }
             
-            else if(name.equals("^")) {
-                return Math.pow(toDoubleHelper(variables, node.getChildren().get(0)), toDoubleHelper(variables, node.getChildren().get(1)));
+            else if (name.equals("^")) {
+                return Math.pow(toDoubleHelper(variables, node.getChildren().get(0)),
+                        toDoubleHelper(variables, node.getChildren().get(1)));
             }
             
-            else if(name.equals("negate")) {
+            else if (name.equals("negate")) {
                 return -1 * toDoubleHelper(variables, node.getChildren().get(0));
             }
             
-            else if(name.equals("sin")) {
+            else if (name.equals("sin")) {
                 return Math.sin(toDoubleHelper(variables, node.getChildren().get(0)));
             }
             
-            else if(name.equals("cos")){
+            else if (name.equals("cos")){
                 return Math.cos(toDoubleHelper(variables, node.getChildren().get(0)));
             }
             
@@ -141,7 +144,7 @@ public class ExpressionManipulators {
             return node;
         }
         else if (node.isVariable()) {
-            if(variables.containsKey(node.getName())) {
+            if (variables.containsKey(node.getName())) {
                 return handleSimplifyHelper(variables, variables.get(node.getName())); 
             }else {
                 return node;
@@ -149,11 +152,11 @@ public class ExpressionManipulators {
         }
             else {
                 String name = node.getName();
-                 if(name.equals("+") || name.equals("-") || name.equals("*")) {
+                 if (name.equals("+") || name.equals("-") || name.equals("*")) {
                     AstNode temp = nodeClone(node);
                     temp.getChildren().set(0, handleSimplifyHelper(variables, temp.getChildren().get(0)));
                     temp.getChildren().set(1, handleSimplifyHelper(variables, temp.getChildren().get(1)));
-                    if(temp.getChildren().get(0).isNumber() && temp.getChildren().get(1).isNumber()) {
+                    if (temp.getChildren().get(0).isNumber() && temp.getChildren().get(1).isNumber()) {
                         return new AstNode(toDoubleHelper(variables, temp));
                     }else {
                         return temp;
@@ -180,7 +183,7 @@ public class ExpressionManipulators {
             
         temp.add(new AstNode(nodes.get(i).getNumericValue()));
         
-        }else if(nodes.get(i).isVariable()){
+        }else if (nodes.get(i).isVariable()){
             
         temp.add(new AstNode(nodes.get(i).getName()));
         
@@ -236,40 +239,21 @@ public class ExpressionManipulators {
         
         
         //check if variable is defined
-        if(variables.containsKey(variable)) {
+        if (variables.containsKey(variable)) {
             throw new EvaluationError("");
         }
-        double minValue = -1;
-        double maxValue = -1;
-        double increment = -1;
         
-        //assign start value
-        if(node.getChildren().get(2).isNumber()) {
-            minValue = node.getChildren().get(2).getNumericValue();
-        } else if(node.getChildren().get(2).isVariable()) {
-            minValue = toDoubleHelper(variables, node.getChildren().get(2));
-        }
+        double minValue = toDoubleHelper(variables, node.getChildren().get(2));
+        double maxValue = toDoubleHelper(variables, node.getChildren().get(3));
+        double increment = toDoubleHelper(variables, node.getChildren().get(4));
         
-        //assign end value
-        if(node.getChildren().get(3).isNumber()) {
-            maxValue = node.getChildren().get(3).getNumericValue();
-        } else if(node.getChildren().get(3).isVariable()) {
-            maxValue = toDoubleHelper(variables, node.getChildren().get(3));
-        }
-        
-        //assign increment value
-        if(node.getChildren().get(4).isNumber()) {
-            increment = node.getChildren().get(4).getNumericValue();
-        } else if(node.getChildren().get(4).isVariable()) {
-            increment = toDoubleHelper(variables, node.getChildren().get(4));
-        }
         
         //check to max sure min, max, and increment are legal values
-        if(increment <= 0 || minValue > maxValue) {
+        if (increment <= 0 || minValue > maxValue) {
             throw new EvaluationError("");
         }
         
-        for(double i = minValue; i <= maxValue; i += increment) {
+        for (double i = minValue; i <= maxValue; i += increment) {
             AstNode tempVariableValue = new AstNode(i);
             variables.put(variable, tempVariableValue);
             
@@ -294,18 +278,4 @@ public class ExpressionManipulators {
         // When working on this method, you should uncomment the following line:
         return new AstNode(1);
     }
-    
-    //TODO might not need
-    private static AstNode findVariableNode(AstNode node) {
-        if(node.isVariable()) {
-            return node;
-        } else {
-            if(node.getChildren().get(0) == null && node.getChildren().get(0).isNumber()) {
-                return findVariableNode(node.getChildren().get(1));
-            } else {
-                return findVariableNode(node.getChildren().get(0));
-            }
-        }
-    }
-    
 }

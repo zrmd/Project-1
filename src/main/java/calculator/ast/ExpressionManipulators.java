@@ -265,16 +265,15 @@ public class ExpressionManipulators {
         }
         
         //check to max sure min, max, and increment are legal values
-        if(minValue == -1 || maxValue == -1 || increment <= 0 || minValue > maxValue) {
+        if(increment <= 0 || minValue > maxValue) {
             throw new EvaluationError("");
         }
         
         for(double i = minValue; i <= maxValue; i += increment) {
-            AstNode temp = handleSimplifyHelper(variables, node);
             AstNode tempVariableValue = new AstNode(i);
             variables.put(variable, tempVariableValue);
             
-            double tempY = toDoubleHelper(variables, temp);
+            double tempY = toDoubleHelper(variables, node.getChildren().get(0));
             xValues.add(i);
             yValues.add(tempY);
             

@@ -228,9 +228,63 @@ public class ExpressionManipulators {
      * @throws EvaluationError  if 'step' is zero or negative
      */
     public static AstNode plot(Environment env, AstNode node) {
-        // TODO: Your code here
-        throw new NotYetImplementedException();
-
+        //set values
+        IDictionary<String, AstNode> variables = env.getVariables();
+        IList<Double> xValues = new DoubleLinkedList<Double>();
+        IList<Double> yValues = new DoubleLinkedList<Double>();
+        String variable = node.getChildren().get(1).getName();
+        
+        
+        //check if variable is defined
+        if(variables.containsKey(variable)) {
+            throw new EvaluationError("");
+        }
+        double minValue = -1;
+        double maxValue = -1;
+        double increment = -1;
+        
+        //assign start value
+        if(node.getChildren().get(2).isNumber()) {
+            minValue = node.getChildren().get(2).getNumericValue();
+        } else if(node.getChildren().get(2).isVariable()) {
+            minValue = toDoubleHelper(variables, node.getChildren().get(2));
+        }
+        
+        //assign end value
+        if(node.getChildren().get(3).isNumber()) {
+            maxValue = node.getChildren().get(3).getNumericValue();
+        } else if(node.getChildren().get(3).isVariable()) {
+            maxValue = toDoubleHelper(variables, node.getChildren().get(3));
+        }
+        
+        //assign increment value
+        if(node.getChildren().get(4).isNumber()) {
+            increment = node.getChildren().get(4).getNumericValue();
+        } else if(node.getChildren().get(4).isVariable()) {
+            increment = toDoubleHelper(variables, node.getChildren().get(4));
+        }
+        
+        //check to max sure min, max, and increment are legal values
+        if(minValue == -1 || maxValue == -1 || increment <= 0 || minValue > maxValue) {
+            throw new EvaluationError("");
+        }
+        
+        for(double i = minValue; i <= maxValue; i += increment) {
+            AstNode temp = handleSimplifyHelper(variables, node);
+            AstNode tempVariableValue = new AstNode(i);
+            variables.put(variable, tempVariableValue);
+            
+            double tempY = toDoubleHelper(variables, temp);
+            xValues.add(i);
+            yValues.add(tempY);
+            
+            variables.remove(variable);
+        }
+        
+        env.getImageDrawer().drawScatterPlot("Plot", variable, "output", xValues, yValues);
+        
+        
+        
         // Note: every single function we add MUST return an
         // AST node that your "simplify" function is capable of handling.
         // However, your "simplify" function doesn't really know what to do
@@ -239,7 +293,20 @@ public class ExpressionManipulators {
         // arbitrary number.
         //
         // When working on this method, you should uncomment the following line:
-        //
-        // return new AstNode(1);
+        return new AstNode(1);
     }
+    
+    //TODO might not need
+    private static AstNode findVariableNode(AstNode node) {
+        if(node.isVariable()) {
+            return node;
+        } else {
+            if(node.getChildren().get(0) == null && node.getChildren().get(0).isNumber()) {
+                return findVariableNode(node.getChildren().get(1));
+            } else {
+                return findVariableNode(node.getChildren().get(0));
+            }
+        }
+    }
+    
 }

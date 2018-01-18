@@ -2,7 +2,9 @@ package calculator.ast;
 
 import calculator.interpreter.Environment;
 import calculator.errors.EvaluationError;
+import datastructures.concrete.DoubleLinkedList;
 import datastructures.interfaces.IDictionary;
+import datastructures.interfaces.IList;
 import misc.exceptions.NotYetImplementedException;
 
 /**
@@ -148,21 +150,48 @@ public class ExpressionManipulators {
             else {
                 String name = node.getName();
                  if(name.equals("+") || name.equals("-") || name.equals("*")) {
-                    node.getChildren().set(0, handleSimplifyHelper(variables, node.getChildren().get(0)));
-                    node.getChildren().set(1, handleSimplifyHelper(variables, node.getChildren().get(1)));
-                    if(node.getChildren().get(0).isNumber() && node.getChildren().get(1).isNumber()) {
-                        return new AstNode(toDoubleHelper(variables, node));
+                    AstNode temp = nodeClone(node);
+                    temp.getChildren().set(0, handleSimplifyHelper(variables, temp.getChildren().get(0)));
+                    temp.getChildren().set(1, handleSimplifyHelper(variables, temp.getChildren().get(1)));
+                    if(temp.getChildren().get(0).isNumber() && temp.getChildren().get(1).isNumber()) {
+                        return new AstNode(toDoubleHelper(variables, temp));
                     }else {
-                        return node;
+                        return temp;
                     }
                 } else {
+                    AstNode temp = nodeClone(node);
                     for (int i = 0; i < node.getChildren().size(); i++) {
-                        node.getChildren().set(i, handleSimplifyHelper(variables, node.getChildren().get(i)));
+                        temp.getChildren().set(i, handleSimplifyHelper(variables, temp.getChildren().get(i)));
                     }
-                    return node;
+                    return temp;
                 }
             }     
     }
+    
+    
+    public static AstNode nodeClone(AstNode node) {
+        AstNode temp = new AstNode(node.getName(), nodeCloneHelper(node.getChildren()));
+        return temp;
+    }
+    public static IList<AstNode> nodeCloneHelper(IList<AstNode> nodes) {
+        IList<AstNode> temp = new DoubleLinkedList<>();
+        for (int i = 0; i < nodes.size(); i++) {
+        if (nodes.get(i).isNumber()) {
+            
+        temp.add(new AstNode(nodes.get(i).getNumericValue()));
+        
+        }else if(nodes.get(i).isVariable()){
+            
+        temp.add(new AstNode(nodes.get(i).getName()));
+        
+        }
+        else {
+        temp.add(new AstNode(nodes.get(i).getName(), nodeCloneHelper(nodes.get(i).getChildren())));   
+        }
+        } 
+        return temp;
+    }
+    
 
     /**
      * Accepts a 'plot(exprToPlot, var, varMin, varMax, step)' AstNode and

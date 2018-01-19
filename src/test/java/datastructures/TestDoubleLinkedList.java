@@ -662,5 +662,37 @@ public class TestDoubleLinkedList extends BaseTest {
         }
         assertEquals(0, list.size());
     }
+    
+    @Test(timeout = SECOND)
+    public void testDeleteThenInsert() {
+        IList<String> list = this.makeBasicList();
+        
+        list.delete(0);
+        this.assertListMatches(new String[] {"b", "c"}, list);
+        
+        list.insert(0, "a");
+        this.assertListMatches(new String[] {"a", "b", "c"}, list);
+
+        list.delete(2);
+        this.assertListMatches(new String[] {"a", "b"}, list);
+        
+        list.insert(2, "c");
+        this.assertListMatches(new String[] {"a", "b", "c"}, list);
+        
+        list.delete(1);
+        this.assertListMatches(new String[] {"a", "c"}, list);
+
+        list.insert(1, "b");
+        this.assertListMatches(new String[] {"a", "b", "c"}, list);
+    }
+    
+    @Test(timeout = SECOND)
+    public void testDeleteReturnValue() {
+        IList<String> list = this.makeBasicList();
+        
+        assertEquals(list.delete(0), "a");
+        assertEquals(list.delete(1), "c");
+        assertEquals(list.delete(0), "b");
+    }
 }
 

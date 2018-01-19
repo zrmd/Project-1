@@ -46,6 +46,7 @@ public class Experiment1 {
         System.out.println("All done!");
     }
 
+    //tests how long it takes the remove every value from the front of the list
     public static long test1(long dictionarySize) {
         // We don't include the cost of constructing the dictionary when running this test
         IDictionary<Long, Long> dictionary = AnalysisUtils.makeDictionary(dictionarySize);
@@ -58,6 +59,7 @@ public class Experiment1 {
         return System.currentTimeMillis() - start;
     }
 
+    //tests how long it takes the remove every value from the back of the list
     public static long test2(long dictionarySize) {
         IDictionary<Long, Long> dictionary = AnalysisUtils.makeDictionary(dictionarySize);
 

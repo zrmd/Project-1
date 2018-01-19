@@ -70,7 +70,6 @@ public class Experiment2 {
         for (long item : list) {
             temp += item;
         }
-
         // Returns time elapsed
         return System.currentTimeMillis() - start;
     }
